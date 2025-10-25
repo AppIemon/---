@@ -3,20 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Adaptive 2ⁿ 성능 테스트 v3</title>
+<title>Adaptive 2ⁿ 성능 테스트 v5</title>
 <style>
-body{background:#000;color:#0f0;padding:20px;font-family:Consolas}
-button{background:#0f0;border:none;padding:10px 20px;font-size:18px;color:#000;font-weight:bold;cursor:pointer;border-radius:10px;margin:5px}
-pre{white-space:pre-wrap;word-break:break-word;margin-top:20px;max-height:70vh;overflow:auto}
+body{background:#000;color:#0f0;padding:20px;font-family:Consolas;text-align:center}
+#bigN{font-size:48px;font-weight:bold;margin:20px 0;color:#0ff;text-shadow:0 0 10px #0ff}
+button{background:#0f0;border:none;padding:10px 20px;font-size:18px;color:#000;font-weight:bold;cursor:pointer;border-radius:10px;margin:10px auto;display:block}
+pre{white-space:pre-wrap;word-break:break-word;margin-top:20px;max-height:60vh;overflow:auto;text-align:left;border:1px solid #0f0;padding:10px;border-radius:8px}
 </style>
 </head>
 <body>
-<h1>⚡ Adaptive 2ⁿ 성능 테스트 v3 ⚡</h1>
+<h1>⚡ Adaptive 2ⁿ 성능 테스트 v5 ⚡</h1>
+<div id="bigN">2^?</div>
 <button id="startBtn">테스트 시작</button>
 <div id="controls"></div>
 <pre id="log"></pre>
 
 <script>
+const bigN = document.getElementById("bigN");
 const log = document.getElementById("log");
 const btn = document.getElementById("startBtn");
 const controls = document.getElementById("controls");
@@ -28,54 +31,42 @@ btn.onclick = async () => {
   await new Promise(r=>setTimeout(r,300));
 
   let n = 10;
-  let step = 1000000;
+  let step = 100000000; // 1억
   const lines = [];
 
   while(true){
+    bigN.textContent = `2^${n.toLocaleString()}`;
     const start = performance.now();
 
     const result = 2n ** BigInt(n);
-    const dummy = result % 99991n; // 최적화 방지용
+    const dummy = result % 99991n; // 최적화 방지
 
     const time = performance.now() - start;
     lines.push(`n=${n} → ${time.toFixed(3)}ms`);
     log.textContent = lines.join("\n");
+    log.scrollTop = log.scrollHeight; // 자동 스크롤
 
-    if(time >= 6000){
-      log.textContent += `\n\n🚫 중단: 2^${n} 에서 6초 초과 (${time.toFixed(2)}ms)\n`;
+    if(time >= 3000){
+      log.textContent += `\n\n🚫 중단: 2^${n} 에서 3초 초과 (${time.toFixed(2)}ms)\n`;
       break;
     }
 
-    // 단계 조정
-    if(time >= 5000){
-      log.textContent += `\n🔸 초정밀 단계 진입 (10씩 증가)\n`;
+    // 단계 조절
+    if(time >= 2000){
       n -= step; if(n<0)n=0;
-      step = 10;
-    } else if(time >= 4000){
-      log.textContent += `\n🔸 정밀 단계 진입 (100씩 증가)\n`;
-      n -= step; if(n<0)n=0;
-      step = 100;
-    } else if(time >= 3000){
-      log.textContent += `\n🔹 느려짐 감지 (1000씩 증가)\n`;
-      n -= step; if(n<0)n=0;
-      step = 1000;
-    } else if(time >= 2000){
-      log.textContent += `\n🔹 중간 단계 진입 (1만씩 증가)\n`;
-      n -= step; if(n<0)n=0;
-      step = 10000;
+      step = 1;
     } else if(time >= 1000){
-      log.textContent += `\n🔹 세밀 단계 진입 (10만씩 증가)\n`;
       n -= step; if(n<0)n=0;
-      step = 100000;
+      step = 10000000;
     } else {
-      step = 1000000;
+      step = 100000000;
     }
 
     await new Promise(r=>setTimeout(r,20));
     n += step;
   }
 
-  // 다운로드 버튼
+  // 다운로드 버튼 생성
   const blob = new Blob([lines.join("\n")], {type:"text/plain"});
   const url = URL.createObjectURL(blob);
   const dl = document.createElement("a");
@@ -88,7 +79,7 @@ btn.onclick = async () => {
   });
   controls.appendChild(dl);
 
-  log.textContent += "\n✅ 테스트 완료.";
+  bigN.textContent = "✅ 완료";
   btn.disabled = false;
 };
 </script>
