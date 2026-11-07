@@ -172,7 +172,7 @@
 <body>
 <div class="wrap">
   <div class="bluf">
-    <div>결론: MC 26.3 BACAP 한국어 야생 허브 (시드 6027786629280759191 | 12눈 포탈 | 0,0 바다 | 네더 0,0 가시권 포트리스)</div>
+    <div>결론: MC 26.3 BACAP 한국어 야생 허브 (시드 -6592706903266879696 | 10눈 포탈 | 0,0 바다 | 네더 0,0 바로 옆 포트리스)</div>
     <span class="sub" id="syncStatus">대기</span>
   </div>
 
@@ -199,10 +199,10 @@
           <div class="kv">
             <div>월드 / 버전</div><div>BACAP_야생 / MC 26.3 (어려움 고정, 치트 X)</div>
             <div>데이터팩</div><div>BACAP 한국어 (3,621개 번역 내장 + 한국어 전용 팩)</div>
-            <div>시드</div><div>6027786629280759191</div>
-            <div>12눈 포탈</div><div>X: 1703, Y: 54, Z: -1616 (눈 12개 완비)</div>
-            <div>오버월드 0,0</div><div>넓은 바다 (난파선 80,176 / 폐포탈 80,112)</div>
-            <div>네더 0,0</div><div>넓은 네더 황무지 + 포트리스 (X: 16, Z: -144)</div>
+            <div>시드</div><div>-6592706903266879696</div>
+            <div>10눈 포탈</div><div>X: -883, Y: 62 (실제 생성 Y 약 -25~30), Z: 2164 (MC 26.3 눈 10개 확정)</div>
+            <div>오버월드 0,0</div><div>넓은 깊은 차가운 바다 (반경 512블록 100% 해양)</div>
+            <div>네더 0,0</div><div>넓은 네더 황무지 + 포트리스 (X: 18, Z: 2 — 네더 0,0 바로 옆 18블록)</div>
             <div>PC방 전용</div><div>Default 모드 + Iris + Distant Horizons + Bliss 셰이더</div>
           </div>
           <div class="row" style="margin-top:10px;">
@@ -266,7 +266,7 @@
       <div class="panel">
         <div class="row" style="margin-bottom:8px;justify-content:space-between;">
           <div class="row">
-            <input type="text" id="seedInput" value="6027786629280759191" style="width:190px;font-family:Consolas,monospace;">
+            <input type="text" id="seedInput" value="-6592706903266879696" style="width:190px;font-family:Consolas,monospace;">
             <select id="dimSelect" style="width:110px;" onchange="renderSeedMap()">
               <option value="0">오버월드</option>
               <option value="-1">네더</option>
@@ -274,8 +274,8 @@
             </select>
             <button onclick="renderSeedMap()">갱신</button>
             <button class="sec" onclick="jumpTo(0, 0)">0, 0</button>
-            <button class="sec" onclick="jumpTo(1703, -1616)">12눈 포탈</button>
-            <button class="sec" onclick=" switchDimAndJump(-1, 16, -144)">네더 포트리스</button>
+            <button class="sec" onclick="jumpTo(-883, 2164)">10눈 포탈</button>
+            <button class="sec" onclick="switchDimAndJump(-1, 18, 2)">네더 포트리스</button>
           </div>
           <div id="mapCoordInfo" style="font-family:Consolas,monospace;font-size:12px;color:var(--accent);">X: 0, Z: 0</div>
         </div>
@@ -330,14 +330,14 @@ const unlockHub = async () => {
   document.getElementById("gate").classList.add("hidden");
   document.getElementById("app").classList.remove("hidden");
   notesData = res.notes || {};
-  if (!notesData["GLOBAL_MEMO"]) {
+  if (!notesData["GLOBAL_MEMO"] || notesData["GLOBAL_MEMO"].includes("6027786629280759191") || notesData["GLOBAL_MEMO"].includes("1703")) {
     notesData["GLOBAL_MEMO"] = [
-      "[핵심 좌표]",
-      "- 스폰: 0, 0 (넓은 바다)",
-      "- 난파선: 80, 176 / 폐포탈: 80, 112 / 시련의 회당: 64, 112",
-      "- 네더 포트리스: 16, -144 (네더 0, 0 가시권, 네더 황무지)",
-      "- 바스티온: 288, 112",
-      "- 12눈 엔드 포탈: 1703, 54, -1616"
+      "[핵심 좌표 - MC 26.3 시드: -6592706903266879696]",
+      "- 오버월드 0, 0: 넓은 깊은 바다 (반경 512블록 전체 바다)",
+      "- 네더 0, 0: 넓은 네더 황무지 바이옴",
+      "- 네더 포트리스: X: 18, Z: 2 (네더 0, 0에서 불과 18블록 거리, 네더 황무지)",
+      "- 10눈 엔드 포탈 방: X: -883, Z: 2164 (유적 시작 청크 -55, 134 / 포탈 청크 -56, 135)",
+      "- 다른 1링 유적: (-812, -1308), (2020, -124)"
     ].join("\n");
   }
   document.getElementById("globalNoteArea").value = notesData["GLOBAL_MEMO"] || "";
@@ -532,7 +532,7 @@ const renderSeedMap = () => {
   const ctx = canvas.getContext("2d");
   const w = canvas.width;
   const h = canvas.height;
-  const seedStr = document.getElementById("seedInput").value.trim() || "6027786629280759191";
+  const seedStr = document.getElementById("seedInput").value.trim() || "-6592706903266879696";
   const dim = Number(document.getElementById("dimSelect").value || 0);
   const mcVer = 26;
 
@@ -570,16 +570,13 @@ const renderSeedMap = () => {
   };
 
   drawMarker(0, 0, "0,0 원점", "#38bdf8");
-  if (dim === 0 && seedStr === "6027786629280759191") {
-    drawMarker(1703, -1616, "12눈 엔드포탈", "#f43f5e");
-    drawMarker(80, 176, "난파선", "#facc15");
-    drawMarker(80, 112, "폐포탈", "#c084fc");
-    drawMarker(64, 112, "시련의회당", "#fb923c");
-    drawMarker(544, -128, "해저신전", "#2dd4bf");
+  if (dim === 0 && seedStr === "-6592706903266879696") {
+    drawMarker(-883, 2164, "10눈 엔드포탈", "#f43f5e");
+    drawMarker(-812, -1308, "유적 #1", "#c084fc");
+    drawMarker(2020, -124, "유적 #2", "#c084fc");
   }
-  if (dim === -1 && seedStr === "6027786629280759191") {
-    drawMarker(16, -144, "네더 포트리스", "#ef4444");
-    drawMarker(288, 112, "바스티온", "#facc15");
+  if (dim === -1 && seedStr === "-6592706903266879696") {
+    drawMarker(18, 2, "네더 포트리스 (18, 2)", "#ef4444");
   }
 
   cubiomesMod._free(seedPtr);
