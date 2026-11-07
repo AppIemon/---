@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MC 26.3 야생 허브</title>
+<style>
+  :root {
+    --bg: #0b0f17;
+    --panel: #131b29;
+    --border: #24324a;
+    --text: #f1f5f9;
+    --muted: #8b9bb4;
+    --accent: #38bdf8;
+    --ok: #22c55e;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Pretendard", "Malgun Gothic", Consolas, sans-serif;
+    font-size: 13px;
+    padding: 14px;
+    line-height: 1.4;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; }
+  .bluf {
+    background: var(--panel);
+    border-left: 4px solid var(--accent);
+    border-top: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 14px;
+    margin-bottom: 10px;
+    font-weight: 700;
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+  .bluf span.sub { font-weight: 400; font-size: 12px; color: var(--muted); }
+  #gate {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 18px;
+    max-width: 420px;
+    margin: 40px auto;
+  }
+  input, textarea, select {
+    background: #080c12;
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 7px 10px;
+    font-family: inherit;
+    font-size: 13px;
+    width: 100%;
+  }
+  button, a.btn {
+    background: var(--accent);
+    color: #06101e;
+    border: none;
+    padding: 7px 12px;
+    font-weight: 700;
+    font-size: 12px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+  }
+  button.sec, a.btn.sec {
+    background: #1e293b;
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+  .tab-btn {
+    background: var(--panel);
+    color: var(--muted);
+    border: 1px solid var(--border);
+    padding: 7px 16px;
+  }
+  .tab-btn.active {
+    background: var(--accent);
+    color: #06101e;
+    border-color: var(--accent);
+  }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 12px;
+    margin-bottom: 10px;
+  }
+  .grid2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .kv {
+    display: grid;
+    grid-template-columns: 95px 1fr;
+    gap: 4px 8px;
+    font-size: 12px;
+    margin-bottom: 8px;
+  }
+  .kv div:nth-child(odd) { color: var(--muted); }
+  .cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    margin-top: 8px;
+  }
+  .cal-head {
+    text-align: center;
+    color: var(--muted);
+    font-size: 11px;
+    padding: 4px 0;
+  }
+  .cal-cell {
+    background: #090d14;
+    border: 1px solid var(--border);
+    min-height: 54px;
+    padding: 4px 6px;
+    cursor: pointer;
+    font-size: 11px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .cal-cell.active { border-color: var(--accent); background: #102036; }
+  .cal-cell .dot {
+    font-size: 10px;
+    color: var(--accent);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .delta-list {
+    max-height: 220px;
+    overflow-y: auto;
+    font-family: Consolas, monospace;
+    font-size: 11px;
+  }
+  .delta-item {
+    border-bottom: 1px solid var(--border);
+    padding: 5px 0;
+  }
+  canvas#seedCanvas {
+    width: 100%;
+    height: 440px;
+    background: #05080d;
+    border: 1px solid var(--border);
+    cursor: grab;
+    display: block;
+  }
+  .hidden { display: none !important; }
+  @media (max-width: 760px) {
+    .grid2 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="bluf">
+    <div>결론: MC 26.3 BACAP 한국어 야생 허브 (시드 6027786629280759191 | 12눈 포탈 | 0,0 바다 | 네더 0,0 가시권 포트리스)</div>
+    <span class="sub" id="syncStatus">대기</span>
+  </div>
+
+  <div id="gate">
+    <div style="margin-bottom:8px;font-weight:700;">비밀번호 입력</div>
+    <div class="row">
+      <input type="password" id="passInput" placeholder="비밀번호" style="flex:1" onkeydown="if(event.key==='Enter')unlockHub()">
+      <button onclick="unlockHub()">확인</button>
+    </div>
+    <div id="gateErr" style="color:#f87171;font-size:12px;margin-top:6px;"></div>
+  </div>
+
+  <div id="app" class="hidden">
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('world', this)">월드 / PC방</button>
+      <button class="tab-btn" onclick="switchTab('cal', this)">캘린더 / 메모</button>
+      <button class="tab-btn" onclick="switchTab('map', this)">시드맵</button>
+    </div>
+
+    <div id="tab-world">
+      <div class="grid2">
+        <div class="panel">
+          <div style="font-weight:700;margin-bottom:8px;">월드 및 PC방 세팅</div>
+          <div class="kv">
+            <div>월드 / 버전</div><div>BACAP_야생 / MC 26.3 (어려움 고정, 치트 X)</div>
+            <div>데이터팩</div><div>BACAP 한국어 (3,621개 번역 내장 + 한국어 전용 팩)</div>
+            <div>시드</div><div>6027786629280759191</div>
+            <div>12눈 포탈</div><div>X: 1703, Y: 54, Z: -1616 (눈 12개 완비)</div>
+            <div>오버월드 0,0</div><div>넓은 바다 (난파선 80,176 / 폐포탈 80,112)</div>
+            <div>네더 0,0</div><div>넓은 네더 황무지 + 포트리스 (X: 16, Z: -144)</div>
+            <div>PC방 전용</div><div>Default 모드 + Iris + Distant Horizons + Bliss 셰이더</div>
+          </div>
+          <div class="row" style="margin-top:10px;">
+            <button onclick="downloadPCBangLauncher()">PC방 원클릭 런처(.bat)</button>
+            <a class="btn sec" id="dlFullPack" href="https://github.com/AppIemon/mc-hub/releases/download/v26.3-pcbang/PCBang_26_3_FullPack.zip" target="_blank">PC방 통합팩(.zip)</a>
+            <a class="btn sec" id="dlWorldZip" href="https://github.com/AppIemon/mc-hub/releases/download/v26.3-pcbang/BACAP_World_Latest.zip" target="_blank">최신 월드(.zip)</a>
+            <a class="btn sec" href="https://modrinth.com/app" target="_blank">모드린스 앱</a>
+          </div>
+          <div style="margin-top:10px;border-top:1px solid var(--border);padding-top:8px;">
+            <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">PC방 파워쉘 1줄 자동 세팅 (클릭 시 복사):</div>
+            <input type="text" readonly id="psOneLiner" onclick="copyPsOneLiner()" style="cursor:pointer;font-family:Consolas,monospace;font-size:11px;" value="">
+          </div>
+        </div>
+
+        <div class="panel">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <span style="font-weight:700;">월드 차등 백업 (20분 / 침대 수면) & 수동 업로드</span>
+            <label class="btn sec" style="cursor:pointer;">
+              월드 폴더/ZIP 올리기
+              <input type="file" id="worldUploadInput" webkitdirectory directory multiple style="display:none" onchange="handleWorldUpload(this.files)">
+            </label>
+          </div>
+          <div class="row" style="margin-bottom:8px;">
+            <label class="btn sec" style="cursor:pointer;font-size:11px;">
+              ZIP 파일로 올리기
+              <input type="file" accept=".zip" style="display:none" onchange="handleZipUpload(this.files[0])">
+            </label>
+            <span id="uploadMsg" style="font-size:11px;color:var(--accent);"></span>
+          </div>
+          <div class="delta-list" id="deltaList">로딩 중...</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-cal" class="hidden">
+      <div class="grid2">
+        <div class="panel">
+          <div class="row" style="justify-content:space-between;">
+            <button class="sec" onclick="moveMonth(-1)">이전</button>
+            <div id="calTitle" style="font-weight:700;"></div>
+            <button class="sec" onclick="moveMonth(1)">다음</button>
+          </div>
+          <div class="cal-grid" id="calGrid"></div>
+        </div>
+        <div class="panel">
+          <div class="row" style="justify-content:space-between;margin-bottom:6px;">
+            <div id="noteTitle" style="font-weight:700;">날짜 메모</div>
+            <button onclick="saveCurrentNote()">저장</button>
+          </div>
+          <textarea id="dateNoteArea" rows="8" placeholder="선택한 날짜의 야생 기록 입력" style="margin-bottom:10px;"></textarea>
+          <div class="row" style="justify-content:space-between;margin-bottom:6px;">
+            <div style="font-weight:700;">고정 메모장 (공통 좌표 / 할 일)</div>
+            <button onclick="saveGlobalNote()">저장</button>
+          </div>
+          <textarea id="globalNoteArea" rows="7" placeholder="고정 메모 입력"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-map" class="hidden">
+      <div class="panel">
+        <div class="row" style="margin-bottom:8px;justify-content:space-between;">
+          <div class="row">
+            <input type="text" id="seedInput" value="6027786629280759191" style="width:190px;font-family:Consolas,monospace;">
+            <select id="dimSelect" style="width:110px;" onchange="renderSeedMap()">
+              <option value="0">오버월드</option>
+              <option value="-1">네더</option>
+              <option value="1">엔드</option>
+            </select>
+            <button onclick="renderSeedMap()">갱신</button>
+            <button class="sec" onclick="jumpTo(0, 0)">0, 0</button>
+            <button class="sec" onclick="jumpTo(1703, -1616)">12눈 포탈</button>
+            <button class="sec" onclick=" switchDimAndJump(-1, 16, -144)">네더 포트리스</button>
+          </div>
+          <div id="mapCoordInfo" style="font-family:Consolas,monospace;font-size:12px;color:var(--accent);">X: 0, Z: 0</div>
+        </div>
+        <canvas id="seedCanvas" width="960" height="440"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/cubiomes.js"></script>
+<script>
+const PASS_STORAGE = "mc_hub_pass_v1";
+let currentPass = localStorage.getItem(PASS_STORAGE) || "";
+let notesData = {};
+let curYear = new Date().getFullYear();
+let curMonth = new Date().getMonth();
+let selectedDateKey = new Date().toISOString().slice(0, 10);
+
+const setOneLiner = () => {
+  const origin = location.origin;
+  const cmd = `irm "${origin}/api/pcbang?pass=oiuweroiuweroiuweroiuwer" | iex`;
+  const el = document.getElementById("psOneLiner");
+  if (el) el.value = cmd;
+};
+setOneLiner();
+
+const copyPsOneLiner = () => {
+  const el = document.getElementById("psOneLiner");
+  navigator.clipboard.writeText(el.value);
+  document.getElementById("syncStatus").textContent = "명령어 복사됨";
+};
+
+const apiCall = async (action, body = null) => {
+  const opts = {
+    method: body ? "POST" : "GET",
+    headers: { "Content-Type": "application/json", "x-pass": currentPass }
+  };
+  if (body) opts.body = JSON.stringify({ ...body, action, pass: currentPass });
+  const res = await fetch(`/api/hub?action=${action}`, opts);
+  return await res.json();
+};
+
+const unlockHub = async () => {
+  const inp = document.getElementById("passInput").value.trim() || currentPass;
+  currentPass = inp;
+  const res = await apiCall("state");
+  if (!res.ok) {
+    document.getElementById("gateErr").textContent = res.error || "인증 실패";
+    return;
+  }
+  localStorage.setItem(PASS_STORAGE, currentPass);
+  document.getElementById("gate").classList.add("hidden");
+  document.getElementById("app").classList.remove("hidden");
+  notesData = res.notes || {};
+  if (!notesData["GLOBAL_MEMO"]) {
+    notesData["GLOBAL_MEMO"] = [
+      "[핵심 좌표]",
+      "- 스폰: 0, 0 (넓은 바다)",
+      "- 난파선: 80, 176 / 폐포탈: 80, 112 / 시련의 회당: 64, 112",
+      "- 네더 포트리스: 16, -144 (네더 0, 0 가시권, 네더 황무지)",
+      "- 바스티온: 288, 112",
+      "- 12눈 엔드 포탈: 1703, 54, -1616"
+    ].join("\n");
+  }
+  document.getElementById("globalNoteArea").value = notesData["GLOBAL_MEMO"] || "";
+  renderDeltas(res.deltas || [], res.gitDeltas || []);
+  renderCalendar();
+  selectDate(selectedDateKey);
+  document.getElementById("syncStatus").textContent = "동기화 완료";
+  initCubiomesIfNeeded();
+};
+
+const renderDeltas = (dbDeltas, gitDeltas) => {
+  const box = document.getElementById("deltaList");
+  const combined = [...dbDeltas, ...gitDeltas].slice(0, 30);
+  if (combined.length === 0) {
+    box.innerHTML = "<div class='delta-item'>기록 없음</div>";
+    return;
+  }
+  box.innerHTML = combined.map(d => {
+    const files = Array.isArray(d.changedFiles) ? d.changedFiles.join(", ") : "";
+    const label = d.message || `[${d.trigger || "SYNC"}] Day ${d.day || 0} - ${d.timestamp || ""}`;
+    return `<div class="delta-item"><div><strong>${label}</strong></div><div style="color:#8b9bb4">변경점: ${files || "전체 스냅샷"} ${d.statSummary || ""}</div></div>`;
+  }).join("");
+};
+
+const switchTab = (tabId, btn) => {
+  ["world", "cal", "map"].forEach(id => {
+    document.getElementById("tab-" + id).classList.toggle("hidden", id !== tabId);
+  });
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  if (tabId === "map") renderSeedMap();
+};
+
+const renderCalendar = () => {
+  document.getElementById("calTitle").textContent = `${curYear}년 ${curMonth + 1}월`;
+  const grid = document.getElementById("calGrid");
+  const days = ["일", "월", "화", "수", "목", "금", "토"];
+  let html = days.map(d => `<div class="cal-head">${d}</div>`).join("");
+  const firstDay = new Date(curYear, curMonth, 1).getDay();
+  const lastDate = new Date(curYear, curMonth + 1, 0).getDate();
+  for (let i = 0; i < firstDay; i++) html += "<div></div>";
+  for (let d = 1; d <= lastDate; d++) {
+    const key = `${curYear}-${String(curMonth + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+    const memo = (notesData[key] || "").trim().split("\n")[0] || "";
+    const act = key === selectedDateKey ? "active" : "";
+    html += `<div class="cal-cell ${act}" onclick="selectDate('${key}')"><div>${d}</div><div class="dot">${memo.replace(/</g, "&lt;")}</div></div>`;
+  }
+  grid.innerHTML = html;
+};
+
+const moveMonth = delta => {
+  curMonth += delta;
+  if (curMonth < 0) { curMonth = 11; curYear--; }
+  if (curMonth > 11) { curMonth = 0; curYear++; }
+  renderCalendar();
+};
+
+const selectDate = key => {
+  selectedDateKey = key;
+  document.getElementById("noteTitle").textContent = `${key} 메모`;
+  document.getElementById("dateNoteArea").value = notesData[key] || "";
+  renderCalendar();
+};
+
+const saveCurrentNote = async () => {
+  const val = document.getElementById("dateNoteArea").value;
+  notesData[selectedDateKey] = val;
+  renderCalendar();
+  document.getElementById("syncStatus").textContent = "저장 중...";
+  await apiCall("save_note", { dateKey: selectedDateKey, content: val });
+  document.getElementById("syncStatus").textContent = "저장됨";
+};
+
+const saveGlobalNote = async () => {
+  const val = document.getElementById("globalNoteArea").value;
+  notesData["GLOBAL_MEMO"] = val;
+  document.getElementById("syncStatus").textContent = "저장 중...";
+  await apiCall("save_note", { dateKey: "GLOBAL_MEMO", content: val });
+  document.getElementById("syncStatus").textContent = "저장됨";
+};
+
+const toBase64 = file => new Promise((resolve, reject) => {
+  const reader = new FileReader();
+  reader.onload = () => resolve(reader.result.split(",")[1]);
+  reader.onerror = reject;
+  reader.readAsDataURL(file);
+});
+
+const handleWorldUpload = async files => {
+  const arr = Array.from(files).filter(f => !f.name.endsWith(".lock"));
+  if (arr.length === 0) return;
+  const msg = document.getElementById("uploadMsg");
+  msg.textContent = `파일 ${arr.length}개 변경점 분석 중...`;
+  const prevHashes = JSON.parse(localStorage.getItem("mc_file_hashes") || "{}");
+  const changedPayload = [];
+  const changedNames = [];
+  for (const f of arr) {
+    const rel = f.webkitRelativePath ? f.webkitRelativePath.split("/").slice(1).join("/") : f.name;
+    const sig = `${f.size}_${f.lastModified}`;
+    if (prevHashes[rel] !== sig) {
+      changedNames.push(rel);
+      if (f.size < 4 * 1024 * 1024 && changedPayload.length < 15) {
+        changedPayload.push({ path: rel, base64: await toBase64(f) });
+      }
+      prevHashes[rel] = sig;
+    }
+  }
+  localStorage.setItem("mc_file_hashes", JSON.stringify(prevHashes));
+  msg.textContent = `변경된 파일 ${changedNames.length}개 클라우드 전송 중...`;
+  const res = await apiCall("push_delta", {
+    day: 0,
+    trigger: "WEB_DIFF_UPLOAD",
+    changedFiles: changedNames.length > 0 ? changedNames : ["변경점 없음"],
+    statSummary: `(${changedNames.length}개 파일 변경)`,
+    filesPayload: changedPayload
+  });
+  msg.textContent = res.ok ? `업로드 완료 (${changedNames.length}개 파일)` : "업로드 오류";
+  unlockHub();
+};
+
+const handleZipUpload = async file => {
+  if (!file) return;
+  const msg = document.getElementById("uploadMsg");
+  msg.textContent = "ZIP 업로드 중...";
+  const b64 = await toBase64(file);
+  const res = await apiCall("push_delta", {
+    day: 0,
+    trigger: "PCBANG_ZIP_SYNC",
+    changedFiles: [file.name],
+    statSummary: `(${Math.round(file.size / 1024)} KB)`,
+    worldZipBase64: b64
+  });
+  msg.textContent = res.ok ? "ZIP 업로드 완료" : "업로드 실패";
+  unlockHub();
+};
+
+const downloadPCBangLauncher = () => {
+  const origin = location.origin;
+  const bat = [
+    "@echo off",
+    "chcp 65001 >nul",
+    "echo [MC 26.3 BACAP 한국어 PC방 자동 세팅 및 종료 시 자동 백업 런처]",
+    "powershell -NoProfile -ExecutionPolicy Bypass -Command \"irm '${origin}/api/pcbang?pass=oiuweroiuweroiuweroiuwer' | iex\"",
+    "pause"
+  ].join("\r\n");
+  const blob = new Blob([bat], { type: "application/octet-stream" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "PC방_MC26.3_자동세팅런처.bat";
+  a.click();
+};
+
+let cubiomesMod = null;
+let mapCenterX = 0;
+let mapCenterZ = 0;
+let mapScale = 16;
+
+const BIOME_COLORS = {
+  0: "#000070", 1: "#8db360", 2: "#fa9418", 3: "#606060", 4: "#056621", 5: "#0b6659",
+  6: "#07f9b2", 7: "#0000ff", 8: "#572526", 9: "#8080ff", 10: "#7070d6", 12: "#ffffff",
+  14: "#ff00ff", 16: "#fade55", 21: "#537b09", 24: "#000030", 27: "#307444", 29: "#40511a",
+  30: "#31554a", 32: "#596651", 35: "#bdb25f", 37: "#d94515", 40: "#9090b0", 41: "#a0a0c0",
+  42: "#b0b0d0", 43: "#707090", 44: "#0000ac", 45: "#000090", 46: "#202070", 47: "#000050",
+  48: "#000040", 49: "#141438", 50: "#404090", 170: "#493e3b", 171: "#7b0000", 172: "#167e86",
+  173: "#5c5761", 177: "#60a050", 182: "#e070a0", 183: "#111b21"
+};
+
+const initCubiomesIfNeeded = async () => {
+  if (cubiomesMod || typeof createCubiomesModule === "undefined") return;
+  try {
+    cubiomesMod = await createCubiomesModule();
+    renderSeedMap();
+  } catch (_) {}
+};
+
+const jumpTo = (x, z) => {
+  mapCenterX = x;
+  mapCenterZ = z;
+  renderSeedMap();
+};
+
+const switchDimAndJump = (dim, x, z) => {
+  document.getElementById("dimSelect").value = String(dim);
+  mapCenterX = x;
+  mapCenterZ = z;
+  renderSeedMap();
+};
+
+const renderSeedMap = () => {
+  const canvas = document.getElementById("seedCanvas");
+  if (!canvas || !cubiomesMod) return;
+  const ctx = canvas.getContext("2d");
+  const w = canvas.width;
+  const h = canvas.height;
+  const seedStr = document.getElementById("seedInput").value.trim() || "6027786629280759191";
+  const dim = Number(document.getElementById("dimSelect").value || 0);
+  const mcVer = 26;
+
+  const enc = new TextEncoder().encode(seedStr);
+  const seedPtr = cubiomesMod._malloc(enc.length + 1);
+  const heap = cubiomesMod.HEAPU8 || new Uint8Array(cubiomesMod.HEAP32.buffer);
+  heap.set(enc, seedPtr);
+  heap[seedPtr + enc.length] = 0;
+
+  const cell = 8;
+  for (let py = 0; py < h; py += cell) {
+    for (let px = 0; px < w; px += cell) {
+      const wx = Math.round(mapCenterX + (px - w / 2) * (mapScale / 4));
+      const wz = Math.round(mapCenterZ + (py - h / 2) * (mapScale / 4));
+      const b = cubiomesMod._cubiomes_get_biome_at_point(seedPtr, mcVer, dim, 0, 1, wx, 64, wz);
+      ctx.fillStyle = BIOME_COLORS[b] || (dim === -1 ? "#3b1d1d" : (dim === 1 ? "#1a1a2e" : "#2e5a27"));
+      ctx.fillRect(px, py, cell, cell);
+    }
+  }
+
+  const drawMarker = (wx, wz, label, color) => {
+    const px = w / 2 + (wx - mapCenterX) / (mapScale / 4);
+    const py = h / 2 + (wz - mapCenterZ) / (mapScale / 4);
+    if (px < -50 || px > w + 50 || py < -50 || py > h + 50) return;
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(px, py, 5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = "#000";
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    ctx.fillStyle = "#fff";
+    ctx.font = "bold 11px Pretendard, sans-serif";
+    ctx.fillText(`${label} (${wx}, ${wz})`, px + 8, py + 4);
+  };
+
+  drawMarker(0, 0, "0,0 원점", "#38bdf8");
+  if (dim === 0 && seedStr === "6027786629280759191") {
+    drawMarker(1703, -1616, "12눈 엔드포탈", "#f43f5e");
+    drawMarker(80, 176, "난파선", "#facc15");
+    drawMarker(80, 112, "폐포탈", "#c084fc");
+    drawMarker(64, 112, "시련의회당", "#fb923c");
+    drawMarker(544, -128, "해저신전", "#2dd4bf");
+  }
+  if (dim === -1 && seedStr === "6027786629280759191") {
+    drawMarker(16, -144, "네더 포트리스", "#ef4444");
+    drawMarker(288, 112, "바스티온", "#facc15");
+  }
+
+  cubiomesMod._free(seedPtr);
+};
+
+(() => {
+  const c = document.getElementById("seedCanvas");
+  let dragging = false;
+  let sx = 0, sy = 0;
+  c.addEventListener("mousedown", e => { dragging = true; sx = e.clientX; sy = e.clientY; });
+  window.addEventListener("mouseup", () => { dragging = false; });
+  c.addEventListener("mousemove", e => {
+    const rect = c.getBoundingClientRect();
+    const wx = Math.round(mapCenterX + (e.clientX - rect.left - c.width / 2) * (mapScale / 4));
+    const wz = Math.round(mapCenterZ + (e.clientY - rect.top - c.height / 2) * (mapScale / 4));
+    document.getElementById("mapCoordInfo").textContent = `X: ${wx}, Z: ${wz} (클릭 복사)`;
+    if (!dragging) return;
+    mapCenterX -= (e.clientX - sx) * (mapScale / 4);
+    mapCenterZ -= (e.clientY - sy) * (mapScale / 4);
+    sx = e.clientX;
+    sy = e.clientY;
+    renderSeedMap();
+  });
+  c.addEventListener("click", e => {
+    const txt = document.getElementById("mapCoordInfo").textContent.replace(" (클릭 복사)", "");
+    navigator.clipboard.writeText(txt);
+  });
+  c.addEventListener("wheel", e => {
+    e.preventDefault();
+    mapScale = Math.max(4, Math.min(64, mapScale + (e.deltaY > 0 ? 4 : -4)));
+    renderSeedMap();
+  });
+})();
+
+if (currentPass) unlockHub();
+</script>
+</body>
+</html>

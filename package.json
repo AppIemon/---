@@ -1,0 +1,8 @@
+{
+  "name": "mc-26-3-survival-hub",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "mongodb": "^6.10.0"
+  }
+}
